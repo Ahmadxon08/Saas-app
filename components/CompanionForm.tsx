@@ -29,7 +29,7 @@ const formSchema = z.object({
   topic: z.string().min(2, { message: "Topic is required." }),
   voice: z.string().min(2, { message: "Voice is required." }),
   style: z.string().min(2, { message: "Style is required." }),
-  duration: z.coerce.number().min(2, { message: "Duration is required." }),
+  duration: z.number().min(2, { message: "Duration is required." }),
 });
 const CompanionForm = () => {
   const form = useForm<z.infer<typeof formSchema>>({
