@@ -13,7 +13,6 @@ import {
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -22,6 +21,8 @@ import {
 import { Input } from "@/components/ui/input";
 import { subjects } from "@/constants";
 import { Textarea } from "./ui/textarea";
+import { createCompanion } from "@/lib/actions/companion.action";
+import { redirect, useRouter } from "next/navigation";
 
 const formSchema = z.object({
   name: z.string().min(2, { message: "Companion is required." }),
@@ -32,6 +33,7 @@ const formSchema = z.object({
   duration: z.number().min(2, { message: "Duration is required." }),
 });
 const CompanionForm = () => {
+  const router = useRouter();
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -44,8 +46,16 @@ const CompanionForm = () => {
     },
   });
 
-  const onSubmit = (values: z.infer<typeof formSchema>) => {
-    console.log(values);
+  const onSubmit = async (values: z.infer<typeof formSchema>) => {
+    try {
+      const companion = await createCompanion(values);
+
+      console.log("Id of companion:", companion);
+
+      router.push(`/companions/${companion.id}`); // 🔹 client redirect
+    } catch (err: any) {
+      console.error("Failed to create companion:", err.message);
+    }
   };
   return (
     <Form {...form}>
@@ -184,9 +194,12 @@ const CompanionForm = () => {
               <FormControl>
                 <Input
                   type="number"
-                  placeholder="Enter the duration:15"
+                  min={1}
+                  step={1}
+                  placeholder="15"
                   className="input"
-                  {...field}
+                  value={field.value ?? ""}
+                  onChange={(e) => field.onChange(e.target.valueAsNumber)}
                 />
               </FormControl>
 
